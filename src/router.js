@@ -11,7 +11,7 @@ export default async function router(req, res) {
     return;
   }
 
-  // ברירת מחדל
+ 
   res.statusCode = 405;
   res.setHeader('Content-Type', 'application/json');
   res.end(JSON.stringify({ ok: false, error: { code: 'METHOD_NOT_ALLOWED', message: 'Method not allowed' } }));
