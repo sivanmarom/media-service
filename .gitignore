@@ -1,0 +1,5 @@
+# dependencies of npm
+node_modules/
+
+# secrets file
+.env
