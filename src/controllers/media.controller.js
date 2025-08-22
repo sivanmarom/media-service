@@ -1,4 +1,4 @@
-import { listObjects, createPresignedPutUrl } from '../services/s3.service.js';
+import { listObjects, createPresignedPutUrl, getObject } from '../services/s3.service.js';
 import crypto from 'crypto';
 import path from 'path';  
 
@@ -127,9 +127,24 @@ export async function headMedia(_req, res, _url, key) {
 }
 
 export async function getMedia(_req, res, _url, key) {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'application/json');
-  res.end(JSON.stringify({ ok: true, data: { key, note: 'get controller stub' } }));
+  try {
+    const obj = await getObject(key);
+
+    // כותרות מתאימות
+    res.statusCode = 200;
+    res.setHeader('Content-Type', obj.ContentType || 'application/octet-stream');
+    if (obj.ContentLength) {
+      res.setHeader('Content-Length', obj.ContentLength.toString());
+    }
+
+    // החזרת הזרם ישירות ללקוח
+    obj.Body.pipe(res);
+  } catch (e) {
+    console.error('GET ERROR:', e);
+    res.statusCode = 404;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ ok: false, error: { code: 'NOT_FOUND', message: 'File not found' } }));
+  }
 }
 
 export async function deleteMedia(_req, res, _url, key) {

@@ -32,3 +32,12 @@ export async function createPresignedPutUrl({ key, contentType, metadata = {}, e
   const url = await getSignedUrl(s3, cmd, { expiresIn }); // שניות
   return { url, key, expiresIn };
 }
+
+
+export async function getObject(key) {
+  const cmd = new GetObjectCommand({
+    Bucket: BUCKET,
+    Key: key,
+  });
+  return s3.send(cmd); 
+}
