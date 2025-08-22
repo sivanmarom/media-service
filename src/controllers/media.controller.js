@@ -2,13 +2,16 @@ import { listObjects, createPresignedPutUrl, getObject , headObject, deleteObjec
 import crypto from 'crypto';
 import path from 'path';  
 
+// Allowed content types come from env. Empty list = allow all.
 const ALLOWED = (process.env.ALLOWED_CONTENT_TYPES || '')
   .split(',')
   .map(s => s.trim())
   .filter(Boolean);
 
+  // Max payload for direct PUT via server (0 = no limit). Bigger files should go presigned.
 const MAX = Number(process.env.MAX_UPLOAD_BYTES || 0); 
 
+// validate content-type; build S3 key for "create"
 function ensureAllowedContentType(ct) {
   return ALLOWED.length === 0 || ALLOWED.includes(ct);
 }
@@ -22,12 +25,14 @@ function buildKeyFrom(filename) {
   return `media/${yyyy}/${mm}/${id}${ext}`;
 }
 
+// health check
 export async function health(_req, res) {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
   res.end(JSON.stringify({ ok: true, data: { status: 'ok' } }));
 }
 
+//list objects
 export async function listMedia(_req, res, url) {
   try {
     const prefix = url.searchParams.get('prefix') || 'media/';
@@ -61,6 +66,8 @@ export async function listMedia(_req, res, url) {
   res.end(JSON.stringify({ ok: false, error: { code: 'INTERNAL', message: 'List failed' } }));
 }
 }
+
+// create/update via presigned URL
 export async function createPresigned(req, res) {
   let raw = '';
   req.on('data', chunk => (raw += chunk));
@@ -73,7 +80,7 @@ export async function createPresigned(req, res) {
       res.setHeader('Content-Type', 'application/json');
       return res.end(JSON.stringify({ ok: false, error: { code: 'INVALID_JSON', message: 'Invalid JSON body' } }));
     }
-
+// support both flows- existing key (update) or new filename (create)
 const { key: existingKey, filename, contentType, metadata } = body || {};
 if (!contentType || (!existingKey && !filename)) {
   res.statusCode = 400;
@@ -118,6 +125,7 @@ const key = existingKey || buildKeyFrom(filename);
   });
 }
 
+// metadata (HEAD) for a given key
 export async function headMedia(_req, res, _url, key) {
   try {
     const info = await headObject(key);
@@ -131,6 +139,7 @@ export async function headMedia(_req, res, _url, key) {
   }
 }
 
+// download file
 export async function getMedia(_req, res, _url, key) {
   try {
     const obj = await getObject(key);
@@ -149,6 +158,8 @@ export async function getMedia(_req, res, _url, key) {
     res.end(JSON.stringify({ ok: false, error: { code: 'NOT_FOUND', message: 'File not found' } }));
   }
 }
+
+// delete a file
 export async function deleteMedia(_req, res, _url, key) {
   try {
     await deleteObject(key);
@@ -163,8 +174,7 @@ export async function deleteMedia(_req, res, _url, key) {
   }
 }
 
-
-
+// update via server (small files)
 export async function putMedia(req, res, _url, key) {
   try {
     const ct = req.headers['content-type'];
