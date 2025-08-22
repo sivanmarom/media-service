@@ -27,9 +27,9 @@ export async function createPresignedPutUrl({ key, contentType, metadata = {}, e
     Bucket: BUCKET,
     Key: key,
     ContentType: contentType,
-    Metadata: metadata, // x-amz-meta-*
+    Metadata: metadata, 
   });
-  const url = await getSignedUrl(s3, cmd, { expiresIn }); // שניות
+  const url = await getSignedUrl(s3, cmd, { expiresIn }); 
   return { url, key, expiresIn };
 }
 

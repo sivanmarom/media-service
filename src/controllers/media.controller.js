@@ -74,20 +74,25 @@ export async function createPresigned(req, res) {
       return res.end(JSON.stringify({ ok: false, error: { code: 'INVALID_JSON', message: 'Invalid JSON body' } }));
     }
 
-    // ⬇️ שינוי כאן: תומך גם ב-key קיים (Update) וגם ב-filename (Create)
-    const { key: existingKey, filename, contentType, metadata } = body || {};
-    if (!contentType || (!existingKey && !filename)) {
-      res.statusCode = 400;
-      res.setHeader('Content-Type', 'application/json');
-      return res.end(JSON.stringify({ ok: false, error: { code: 'BAD_REQUEST', message: 'Missing contentType and key/filename' } }));
-    }
-    if (!ensureAllowedContentType(contentType)) {
-      res.statusCode = 415;
-      res.setHeader('Content-Type', 'application/json');
-      return res.end(JSON.stringify({ ok: false, error: { code: 'UNSUPPORTED_MEDIA_TYPE', message: 'Unsupported Media Type' } }));
-    }
+const { key: existingKey, filename, contentType, metadata } = body || {};
+if (!contentType || (!existingKey && !filename)) {
+  res.statusCode = 400;
+  res.setHeader('Content-Type', 'application/json');
+  return res.end(JSON.stringify({
+    ok: false,
+    error: { code: 'BAD_REQUEST', message: 'Missing contentType and key/filename' }
+  }));
+}
+if (!ensureAllowedContentType(contentType)) {
+  res.statusCode = 415;
+  res.setHeader('Content-Type', 'application/json');
+  return res.end(JSON.stringify({
+    ok: false,
+    error: { code: 'UNSUPPORTED_MEDIA_TYPE', message: 'Unsupported Media Type' }
+  }));
+}
 
-    const key = existingKey || buildKeyFrom(filename);
+const key = existingKey || buildKeyFrom(filename);
     const md = {};
     if (metadata && typeof metadata === 'object') {
       for (const [k, v] of Object.entries(metadata)) {
