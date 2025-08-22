@@ -1,4 +1,13 @@
-import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  ListObjectsV2Command,
+  PutObjectCommand,   
+  GetObjectCommand,  
+  DeleteObjectCommand,
+  HeadObjectCommand   //
+} from '@aws-sdk/client-s3';
+
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'; 
 
 const REGION = process.env.AWS_REGION;
 export const BUCKET = process.env.S3_BUCKET;
@@ -11,4 +20,15 @@ export async function listObjects(prefix, maxKeys = 100) {
     MaxKeys: maxKeys,
   }));
   return res.Contents || [];
+}
+
+export async function createPresignedPutUrl({ key, contentType, metadata = {}, expiresIn = 900 }) {
+  const cmd = new PutObjectCommand({
+    Bucket: BUCKET,
+    Key: key,
+    ContentType: contentType,
+    Metadata: metadata, // x-amz-meta-*
+  });
+  const url = await getSignedUrl(s3, cmd, { expiresIn }); // שניות
+  return { url, key, expiresIn };
 }

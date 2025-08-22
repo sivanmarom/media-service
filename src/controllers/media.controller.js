@@ -1,4 +1,25 @@
-import { listObjects } from '../services/s3.service.js';
+import { listObjects, createPresignedPutUrl } from '../services/s3.service.js';
+import crypto from 'crypto';
+import path from 'path';  
+
+const ALLOWED = (process.env.ALLOWED_CONTENT_TYPES || '')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
+
+function ensureAllowedContentType(ct) {
+  return ALLOWED.length === 0 || ALLOWED.includes(ct);
+}
+
+function buildKeyFrom(filename) {
+  const ext = (path.extname(filename || '') || '').toLowerCase();
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const id = crypto.randomUUID();
+
+  return `media/${yyyy}/${mm}/${id}${ext}`;
+}
 
 export async function health(_req, res) {
   res.statusCode = 200;
@@ -24,18 +45,81 @@ export async function listMedia(_req, res, url) {
       }
     }));
   } catch (e) {
-   
-    res.statusCode = 500;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({ ok: false, error: { code: 'INTERNAL', message: 'List failed' } }));
-  }
-}
-export async function createPresigned(_req, res) {
-  res.statusCode = 201;
+  console.error('LIST ERROR:', {
+    name: e?.name,
+    message: e?.message,
+    code: e?.Code || e?.code,
+    status: e?.$metadata?.httpStatusCode,
+    cfId: e?.$metadata?.cfId,
+    requestId: e?.$metadata?.requestId,
+    extendedRequestId: e?.$metadata?.extendedRequestId
+  });
+
+  res.statusCode = 500;
   res.setHeader('Content-Type', 'application/json');
-  res.end(JSON.stringify({ ok: true, data: { url: '<stub>', key: '<stub>' } }));
+  res.end(JSON.stringify({ ok: false, error: { code: 'INTERNAL', message: 'List failed' } }));
+}
+}
+export async function createPresigned(req, res) {
+  let raw = '';
+  req.on('data', chunk => (raw += chunk));
+  req.on('end', async () => {
+    let body;
+    try {
+  body = raw ? JSON.parse(raw) : {};
+} catch {
+  res.statusCode = 400;
+  res.setHeader('Content-Type', 'application/json');
+  return res.end(JSON.stringify({ ok: false, error: { code: 'INVALID_JSON', message: 'Invalid JSON body' } }));
 }
 
+    const { filename, contentType, metadata } = body || {};
+    if (!filename || !contentType) {
+      res.statusCode = 400;
+      res.setHeader('Content-Type', 'application/json');
+      return res.end(JSON.stringify({ ok: false, error: { code: 'BAD_REQUEST', message: 'Missing filename or contentType' } }));
+    }
+    if (!ensureAllowedContentType(contentType)) {
+      res.statusCode = 415;
+      res.setHeader('Content-Type', 'application/json');
+      return res.end(JSON.stringify({ ok: false, error: { code: 'UNSUPPORTED_MEDIA_TYPE', message: 'Unsupported Media Type' } }));
+    }
+
+    const key = buildKeyFrom(filename);
+    const md = {};
+    if (metadata && typeof metadata === 'object') {
+      for (const [k, v] of Object.entries(metadata)) {
+        if (v != null) md[String(k).toLowerCase()] = String(v);
+      }
+    }
+
+ 
+    try {
+      const { url, expiresIn } = await createPresignedPutUrl({
+        key,
+        contentType,
+        metadata: md,
+        expiresIn: 900,
+      });
+
+      res.statusCode = 201;
+      res.setHeader('Content-Type', 'application/json');
+      return res.end(JSON.stringify({ ok: true, data: { key, url, expiresIn } }));
+    } catch (e) {
+      console.error('PRESIGN ERROR:', {
+        name: e?.name,
+        message: e?.message,
+        code: e?.Code || e?.code,
+        status: e?.$metadata?.httpStatusCode,
+        requestId: e?.$metadata?.requestId,
+        extendedRequestId: e?.$metadata?.extendedRequestId
+      });
+      res.statusCode = 500;
+      res.setHeader('Content-Type', 'application/json');
+      return res.end(JSON.stringify({ ok: false, error: { code: 'INTERNAL', message: 'Presign failed' } }));
+    }
+  });
+}
 export async function headMedia(_req, res, _url, key) {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
