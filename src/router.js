@@ -1,6 +1,6 @@
 import { URL } from 'url';
 import {
-  health, listMedia, createPresigned, headMedia, getMedia, deleteMedia
+  health, listMedia, createPresigned, headMedia, getMedia, deleteMedia,putMedia
 } from './controllers/media.controller.js';
 
 export default async function router(req, res) {
@@ -21,6 +21,10 @@ export default async function router(req, res) {
     const key = decodeURIComponent(url.pathname.replace('/media/', ''));
     return deleteMedia(req, res, url, key);
   }
+  if (req.method === 'PUT' && url.pathname.startsWith('/media/')) {
+  const key = decodeURIComponent(url.pathname.replace('/media/', ''));
+  return putMedia(req, res, url, key);
+}
 
   res.statusCode = 405;
   res.setHeader('Content-Type', 'application/json');

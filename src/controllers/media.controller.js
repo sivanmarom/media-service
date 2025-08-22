@@ -1,4 +1,4 @@
-import { listObjects, createPresignedPutUrl, getObject , headObject, deleteObject} from '../services/s3.service.js';
+import { listObjects, createPresignedPutUrl, getObject , headObject, deleteObject, putObjectStream} from '../services/s3.service.js';
 import crypto from 'crypto';
 import path from 'path';  
 
@@ -7,10 +7,11 @@ const ALLOWED = (process.env.ALLOWED_CONTENT_TYPES || '')
   .map(s => s.trim())
   .filter(Boolean);
 
+const MAX = Number(process.env.MAX_UPLOAD_BYTES || 0); 
+
 function ensureAllowedContentType(ct) {
   return ALLOWED.length === 0 || ALLOWED.includes(ct);
 }
-
 function buildKeyFrom(filename) {
   const ext = (path.extname(filename || '') || '').toLowerCase();
   const now = new Date();
@@ -66,18 +67,19 @@ export async function createPresigned(req, res) {
   req.on('end', async () => {
     let body;
     try {
-  body = raw ? JSON.parse(raw) : {};
-} catch {
-  res.statusCode = 400;
-  res.setHeader('Content-Type', 'application/json');
-  return res.end(JSON.stringify({ ok: false, error: { code: 'INVALID_JSON', message: 'Invalid JSON body' } }));
-}
-
-    const { filename, contentType, metadata } = body || {};
-    if (!filename || !contentType) {
+      body = raw ? JSON.parse(raw) : {};
+    } catch {
       res.statusCode = 400;
       res.setHeader('Content-Type', 'application/json');
-      return res.end(JSON.stringify({ ok: false, error: { code: 'BAD_REQUEST', message: 'Missing filename or contentType' } }));
+      return res.end(JSON.stringify({ ok: false, error: { code: 'INVALID_JSON', message: 'Invalid JSON body' } }));
+    }
+
+    // ⬇️ שינוי כאן: תומך גם ב-key קיים (Update) וגם ב-filename (Create)
+    const { key: existingKey, filename, contentType, metadata } = body || {};
+    if (!contentType || (!existingKey && !filename)) {
+      res.statusCode = 400;
+      res.setHeader('Content-Type', 'application/json');
+      return res.end(JSON.stringify({ ok: false, error: { code: 'BAD_REQUEST', message: 'Missing contentType and key/filename' } }));
     }
     if (!ensureAllowedContentType(contentType)) {
       res.statusCode = 415;
@@ -85,7 +87,7 @@ export async function createPresigned(req, res) {
       return res.end(JSON.stringify({ ok: false, error: { code: 'UNSUPPORTED_MEDIA_TYPE', message: 'Unsupported Media Type' } }));
     }
 
-    const key = buildKeyFrom(filename);
+    const key = existingKey || buildKeyFrom(filename);
     const md = {};
     if (metadata && typeof metadata === 'object') {
       for (const [k, v] of Object.entries(metadata)) {
@@ -93,7 +95,6 @@ export async function createPresigned(req, res) {
       }
     }
 
- 
     try {
       const { url, expiresIn } = await createPresignedPutUrl({
         key,
@@ -101,25 +102,17 @@ export async function createPresigned(req, res) {
         metadata: md,
         expiresIn: 900,
       });
-
       res.statusCode = 201;
       res.setHeader('Content-Type', 'application/json');
       return res.end(JSON.stringify({ ok: true, data: { key, url, expiresIn } }));
     } catch (e) {
-      console.error('PRESIGN ERROR:', {
-        name: e?.name,
-        message: e?.message,
-        code: e?.Code || e?.code,
-        status: e?.$metadata?.httpStatusCode,
-        requestId: e?.$metadata?.requestId,
-        extendedRequestId: e?.$metadata?.extendedRequestId
-      });
       res.statusCode = 500;
       res.setHeader('Content-Type', 'application/json');
       return res.end(JSON.stringify({ ok: false, error: { code: 'INTERNAL', message: 'Presign failed' } }));
     }
   });
 }
+
 export async function headMedia(_req, res, _url, key) {
   try {
     const info = await headObject(key);
@@ -162,5 +155,35 @@ export async function deleteMedia(_req, res, _url, key) {
     res.statusCode = 404;
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({ ok: false, error: { code: 'NOT_FOUND', message: 'File not found or cannot delete' } }));
+  }
+}
+
+
+
+export async function putMedia(req, res, _url, key) {
+  try {
+    const ct = req.headers['content-type'];
+    const len = Number(req.headers['content-length'] || 0);
+
+
+    if (MAX > 0 && len > 0 && len > MAX) {
+      res.statusCode = 413;
+      res.setHeader('Content-Type','application/json');
+      return res.end(JSON.stringify({ ok:false, error:{ code:'PAYLOAD_TOO_LARGE', message:`Max ${MAX} bytes. Use /media/presign` }}));
+    }
+
+    const metadata = {};
+    for (const [k,v] of Object.entries(req.headers)) {
+      if (k.startsWith('x-meta-') && v != null) metadata[k.slice(7).toLowerCase()] = String(v);
+    }
+
+    const { etag } = await putObjectStream({ key, body: req, contentType: ct, metadata });
+    res.statusCode = 200;
+    res.setHeader('Content-Type','application/json');
+    return res.end(JSON.stringify({ ok:true, data:{ replaced:true, key, etag } }));
+  } catch (e) {
+    res.statusCode = 500;
+    res.setHeader('Content-Type','application/json');
+    return res.end(JSON.stringify({ ok:false, error:{ code:'INTERNAL', message:'Upload (PUT) failed' }}));
   }
 }
