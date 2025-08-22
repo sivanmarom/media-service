@@ -177,14 +177,33 @@ export async function deleteMedia(_req, res, _url, key) {
 // update via server (small files)
 export async function putMedia(req, res, _url, key) {
   try {
-    const ct = req.headers['content-type'];
+    const ct  = req.headers['content-type'];
     const len = Number(req.headers['content-length'] || 0);
 
+    if (!ct) {
+      res.statusCode = 415;
+      res.setHeader('Content-Type', 'application/json');
+      return res.end(JSON.stringify({
+        ok: false,
+        error: { code: 'UNSUPPORTED_MEDIA_TYPE', message: 'Missing Content-Type header' }
+      }));
+    }
+    if (!ensureAllowedContentType(ct)) {
+      res.statusCode = 415;
+      res.setHeader('Content-Type', 'application/json');
+      return res.end(JSON.stringify({
+        ok: false,
+        error: { code: 'UNSUPPORTED_MEDIA_TYPE', message: `Unsupported Media Type: ${ct}` }
+      }));
+    }
 
     if (MAX > 0 && len > 0 && len > MAX) {
       res.statusCode = 413;
       res.setHeader('Content-Type','application/json');
-      return res.end(JSON.stringify({ ok:false, error:{ code:'PAYLOAD_TOO_LARGE', message:`Max ${MAX} bytes. Use /media/presign` }}));
+      return res.end(JSON.stringify({
+        ok:false,
+        error:{ code:'PAYLOAD_TOO_LARGE', message:`Max ${MAX} bytes. Use /media/presign` }
+      }));
     }
 
     const metadata = {};
@@ -196,6 +215,7 @@ export async function putMedia(req, res, _url, key) {
     res.statusCode = 200;
     res.setHeader('Content-Type','application/json');
     return res.end(JSON.stringify({ ok:true, data:{ replaced:true, key, etag } }));
+
   } catch (e) {
     res.statusCode = 500;
     res.setHeader('Content-Type','application/json');
