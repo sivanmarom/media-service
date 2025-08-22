@@ -1,3 +1,5 @@
+import { listObjects } from '../services/s3.service.js';
+
 export async function health(_req, res) {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
@@ -5,12 +7,29 @@ export async function health(_req, res) {
 }
 
 export async function listMedia(_req, res, url) {
-  const prefix = url.searchParams.get('prefix') || 'media/';
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'application/json');
-  res.end(JSON.stringify({ ok: true, data: { prefix, items: [], note: 'list controller stub' } }));
+  try {
+    const prefix = url.searchParams.get('prefix') || 'media/';
+    const items = await listObjects(prefix);
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({
+      ok: true,
+      data: {
+        prefix,
+        items: items.map(o => ({
+          key: o.Key,
+          size: o.Size,
+          lastModified: o.LastModified
+        }))
+      }
+    }));
+  } catch (e) {
+   
+    res.statusCode = 500;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ ok: false, error: { code: 'INTERNAL', message: 'List failed' } }));
+  }
 }
-
 export async function createPresigned(_req, res) {
   res.statusCode = 201;
   res.setHeader('Content-Type', 'application/json');

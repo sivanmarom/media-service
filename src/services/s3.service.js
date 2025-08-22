@@ -1,7 +1,14 @@
-import { S3Client } from '@aws-sdk/client-s3';
+import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3';
 
 const REGION = process.env.AWS_REGION;
 export const BUCKET = process.env.S3_BUCKET;
-
-// S3 client יחיד לכל האפליקציה
 export const s3 = new S3Client({ region: REGION });
+
+export async function listObjects(prefix, maxKeys = 100) {
+  const res = await s3.send(new ListObjectsV2Command({
+    Bucket: BUCKET,
+    Prefix: prefix || undefined,
+    MaxKeys: maxKeys,
+  }));
+  return res.Contents || [];
+}
