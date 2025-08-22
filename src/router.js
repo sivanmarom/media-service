@@ -3,10 +3,18 @@ import {
   health, listMedia, createPresigned, headMedia, getMedia, deleteMedia, putMedia
 } from './controllers/media.controller.js';
 
-
 export default async function router(req, res) {
   // Turn the request URL into an object
   const url = new URL(req.url, `http://${req.headers.host}`);
+
+  // log every incoming request
+  console.log(JSON.stringify({
+    action: 'REQUEST',
+    method: req.method,
+    path: url.pathname,
+    query: Object.fromEntries(url.searchParams.entries()),
+    time: new Date().toISOString()
+  }));
 
   // Health check
   if (req.method === 'GET' && url.pathname === '/health') {
@@ -47,7 +55,15 @@ export default async function router(req, res) {
     return putMedia(req, res, url, key);
   }
 
-  // fallback: method/path not suppoorted
+  //  method/path not supported
+  console.warn(JSON.stringify({
+    action: 'ROUTER',
+    method: req.method,
+    path: url.pathname,
+    status: 'method_not_allowed',
+    time: new Date().toISOString()
+  }));
+
   res.statusCode = 405;
   res.setHeader('Content-Type', 'application/json');
   res.end(JSON.stringify({
