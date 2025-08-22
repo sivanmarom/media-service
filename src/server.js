@@ -10,7 +10,15 @@ const server = http.createServer(async (req, res) => {
   try {
     await router(req, res);
   } catch (e) {
-   // always respond in json, even for errors. 
+    // log unexpected server errors
+    console.error(JSON.stringify({
+      action: 'SERVER_ERROR',
+      error: e.message,
+      stack: e.stack,
+      time: new Date().toISOString()
+    }));
+
+    // always respond in json, even for errors
     res.statusCode = 500;
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({ ok: false, error: { code: 'INTERNAL', message: 'Internal server error' } }));
@@ -19,5 +27,10 @@ const server = http.createServer(async (req, res) => {
 
 // start listening on the chosen port
 server.listen(PORT, () => {
-  console.log(`Server listening on http://localhost:${PORT}`);
+  console.log(JSON.stringify({
+    action: 'SERVER_START',
+    port: PORT,
+    status: 'listening',
+    time: new Date().toISOString()
+  }));
 });
