@@ -41,3 +41,18 @@ export async function getObject(key) {
   });
   return s3.send(cmd); 
 }
+
+
+export async function headObject(key) {
+  const cmd = new HeadObjectCommand({
+    Bucket: BUCKET,
+    Key: key,
+  });
+  const res = await s3.send(cmd);
+  return {
+    contentType: res.ContentType,
+    size: res.ContentLength,
+    lastModified: res.LastModified,
+    metadata: res.Metadata || {}
+  };
+}
