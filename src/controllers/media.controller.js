@@ -1,4 +1,4 @@
-import { listObjects, createPresignedPutUrl, getObject , headObject} from '../services/s3.service.js';
+import { listObjects, createPresignedPutUrl, getObject , headObject, deleteObject} from '../services/s3.service.js';
 import crypto from 'crypto';
 import path from 'path';  
 
@@ -152,7 +152,15 @@ export async function getMedia(_req, res, _url, key) {
   }
 }
 export async function deleteMedia(_req, res, _url, key) {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'application/json');
-  res.end(JSON.stringify({ ok: true, data: { deleted: true, key, note: 'delete controller stub' } }));
+  try {
+    await deleteObject(key);
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ ok: true, data: { deleted: true, key } }));
+  } catch (e) {
+ 
+    res.statusCode = 404;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ ok: false, error: { code: 'NOT_FOUND', message: 'File not found or cannot delete' } }));
+  }
 }

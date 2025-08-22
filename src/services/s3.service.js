@@ -56,3 +56,11 @@ export async function headObject(key) {
     metadata: res.Metadata || {}
   };
 }
+
+export async function deleteObject(key) {
+  const cmd = new DeleteObjectCommand({
+    Bucket: BUCKET,
+    Key: key,
+  });
+  await s3.send(cmd); 
+}
