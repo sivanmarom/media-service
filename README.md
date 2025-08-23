@@ -180,12 +180,6 @@ All logs are structured JSON. Example:
 
 ---
 
-## Large Files Strategy
-- Direct PUT via server only allowed up to `MAX_UPLOAD_BYTES`
-- Larger files → presigned URL (client streams directly to S3)
-
----
-
 ## Testing
 provided full cURL examples covering:
 - Health
@@ -200,10 +194,24 @@ provided full cURL examples covering:
 ---
 
 ## Possible Improvements
-- Authentication (JWT / API Key)
-- Database for richer metadata search
-- Retry logic for uploads
-- Observability (metrics, traces)
-- Rate limiting
+
+This project was built to demonstrate *core Node.js + AWS S3 integration* without external frameworks.  
+With more time, several improvements could be added:
+
+- *Frontend UI*  
+  Build a lightweight React/Next.js app to upload, list, preview, and delete files directly from the browser.  
+  This would make the service much more user-friendly.
+
+- *Automated Testing*  
+  Add integration and unit tests (e.g., Jest + Supertest) to validate all endpoints automatically, instead of relying only on manual cURL commands.  
+
+- *CI/CD Pipeline*  
+  Use GitHub Actions to run tests on every commit, enforce linting/formatting, and deploy automatically to AWS (Elastic Beanstalk, ECS, or Lambda).  
+
+- *Authentication & Authorization*  
+  Secure endpoints with JWT tokens or AWS Cognito so that only authorized users can upload, update, or delete files.  
+
+- *Database for Metadata*  
+  Store extended metadata (beyond S3 object metadata) in DynamoDB or PostgreSQL to enable advanced queries and searching capabilities.  
 
 ---
