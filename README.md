@@ -25,7 +25,7 @@ The service supports **Presigned URLs** for large file uploads, includes **valid
 ## Setup
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/sivanmarom/media-service.git
 cd media-service
 npm install
 
