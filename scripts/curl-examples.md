@@ -236,7 +236,7 @@ curl -i -X PATCH http://localhost:3000/media/<key_from_step_2>
 ```bash
 curl -i http://localhost:3000/does-not-exist
 ```
-![route_not_exist](https://github.com/user-attachments/assets/adf1ce79-f2ee-4274-8353-9de74c5fcb46)
+
 ![routnotexist](https://github.com/user-attachments/assets/0e4d9d61-7cc4-4c46-a737-7a81290a9888)
 
 
