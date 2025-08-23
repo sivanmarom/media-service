@@ -39,6 +39,7 @@ curl -s -X POST http://localhost:3000/media/presign \
 -	url → The presigned PUT URL to upload your file
 -	expiresIn → Expiration time (seconds)
 
+![presigned_url](https://github.com/user-attachments/assets/ead395bb-dc95-485d-90a5-a94733fc99a7)
 
 ---
 
