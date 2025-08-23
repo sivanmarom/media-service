@@ -1,0 +1,187 @@
+# NodeJS Media Service (No Express) — AWS S3
+
+## Overview
+A lightweight media management service built with **Node.js (no Express)** and integrated with **AWS S3**.  
+It supports file **Create, Read, Update, Delete (CRUD)** operations, presigned uploads for large files, metadata handling, validation, structured logging, and error handling.
+
+---
+
+## Requirements
+- Node.js (LTS recommended)
+- npm or pnpm
+- AWS Account with IAM user/role (least privilege)
+- S3 Bucket created
+- Git
+
+---
+
+## Setup
+```bash
+git clone <your-repo-url>
+cd media-service
+npm install
+cp .env.example .env   # Fill in your AWS credentials + config
+node src/server.js
+```
+
+Server will run on `http://localhost:3000`.
+
+---
+
+## Project Structure
+```
+/src
+  server.js              # HTTP server (no Express)
+  router.js              # Simple router for methods & paths
+  /controllers
+    media.controller.js  # Business logic (CRUD for media)
+  /services
+    s3.service.js        # AWS S3 integration
+  /utils
+    logger.js            # Logging helper
+    responses.js         # Unified response formatter
+    parse-body.js        # Helper to parse request body
+.env.example             # Example environment variables
+.gitignore               # Ignore local/env files
+README.md                # This file
+```
+
+---
+
+## Environment Variables
+```ini
+AWS_ACCESS_KEY_ID=your_key
+AWS_SECRET_ACCESS_KEY=your_secret
+AWS_REGION=us-east-1
+S3_BUCKET=your-bucket
+PORT=3000
+
+# Validation
+ALLOWED_CONTENT_TYPES=image/jpeg,image/png,application/pdf,video/mp4
+MAX_UPLOAD_BYTES=52428800
+```
+
+---
+
+## Design Decisions
+
+### HTTP Methods
+- **POST /media/presign** → Create (upload via presigned URL)  
+- **GET /media/:key** → Read (download)  
+- **PUT /media/:key** → Update (replace small file directly via server)  
+- **DELETE /media/:key** → Delete  
+
+### Metadata
+- Passed via headers (`x-meta-*`) or in presigned request body  
+- Stored directly in S3 object metadata
+
+### Validation
+- Allowlist of content types (from env)
+- Max upload size (from env)
+- JSON body validation for presigned requests
+
+### Logging
+- JSON structured logs for each action (upload, delete, list, error)
+- Includes key, size, status, error, and timestamp
+
+### Large Files
+- Files over `MAX_UPLOAD_BYTES` → require **presigned URL upload** (client streams directly to S3)  
+- Small files → direct upload handled by server
+
+---
+
+## Error Handling
+| Status | Code                    | Meaning                                |
+|--------|--------------------------|----------------------------------------|
+| 400    | BAD_REQUEST              | Missing fields / invalid input         |
+| 404    | NOT_FOUND                | File not found in S3                   |
+| 405    | METHOD_NOT_ALLOWED       | Invalid HTTP method for route          |
+| 413    | PAYLOAD_TOO_LARGE        | File exceeds `MAX_UPLOAD_BYTES`        |
+| 415    | UNSUPPORTED_MEDIA_TYPE   | File type not in allowlist             |
+| 500    | INTERNAL                 | Unexpected server error                |
+
+---
+
+## API Reference
+
+### Health
+`GET /health`  
+→ `{ ok: true, data: { status: "ok" } }`
+
+### List
+`GET /media?prefix=media/2025/08`  
+→ returns files under prefix
+
+### Presign (Create / Update)
+`POST /media/presign`  
+Body:
+```json
+{
+  "filename": "cat.jpg",
+  "contentType": "image/jpeg",
+  "metadata": { "source": "mobile" }
+}
+```
+
+### Head (Metadata)
+`GET /media/head/:key`
+
+### Get (Download)
+`GET /media/:key`
+
+### Put (Update small file)
+`PUT /media/:key`
+
+### Delete
+`DELETE /media/:key`
+
+---
+
+## Logging
+All logs are structured JSON. Example:
+```json
+{
+  "action": "UPLOAD",
+  "key": "media/2025/08/file.jpg",
+  "status": "success",
+  "etag": ""9c46..."",
+  "time": "2025-08-22T10:20:00Z"
+}
+```
+
+---
+
+## Security
+- IAM policy limited to `s3:PutObject`, `s3:GetObject`, `s3:DeleteObject`, `s3:ListBucket`
+- Bucket name + region in `.env`
+- Presigned URLs limited to 15 minutes by default
+
+---
+
+## Large Files Strategy
+- Direct PUT via server only allowed up to `MAX_UPLOAD_BYTES`
+- Larger files → presigned URL (client streams directly to S3)
+
+---
+
+## Testing
+provided full cURL examples covering:
+- Health
+- Create (presign + upload)
+- Read
+- Update (direct + presign)
+- Delete
+- Error cases (invalid JSON, too large, unsupported type, expired URL)
+
+👉 See [`scripts/curl-examples.md`](scripts/curl-examples.md) for full commands + screenshots.
+
+---
+
+## Possible Improvements
+- Authentication (JWT / API Key)
+- Database for richer metadata search
+- Retry logic for uploads
+- Observability (metrics, traces)
+- Rate limiting
+
+---
