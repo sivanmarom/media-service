@@ -37,7 +37,7 @@ Now edit .env and set values like:
 ```bash
 AWS_ACCESS_KEY_ID=your_key
 AWS_SECRET_ACCESS_KEY=your_secret
-AWS_REGION=your region
+AWS_REGION=your-region
 S3_BUCKET=your-bucket-name
 PORT=3000
 ALLOWED_CONTENT_TYPES=image/jpeg,image/png,application/pdf
