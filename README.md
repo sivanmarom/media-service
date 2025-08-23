@@ -32,7 +32,7 @@ npm install
 # Copy env example and fill in your AWS credentials + config
 cp .env .env
 ```
-Now edit .env and set values like:
+Now edit .env.example and set values like:
 
 ```bash
 AWS_ACCESS_KEY_ID=your_key
@@ -63,7 +63,7 @@ Server will run on `http://localhost:3000`.
     media.controller.js  # Business logic (CRUD for media)
   /services
     s3.service.js        # AWS S3 integration
-.env                     # Example environment variables
+.env.example             # Example environment variables file
 .gitignore               # Ignore local/env files
 README.md                # This file
 ```
