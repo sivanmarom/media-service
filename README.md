@@ -123,7 +123,7 @@ MAX_UPLOAD_BYTES=52428800
 | 405    | METHOD_NOT_ALLOWED       | Path exists but HTTP method is not supported for this route  |
 | 413    | PAYLOAD_TOO_LARGE        | File exceeds `MAX_UPLOAD_BYTES`                             |
 | 415    | UNSUPPORTED_MEDIA_TYPE   | File type not in allowlist / missing Content-Type header     |
-| 500    | INTERNAL                 | Unexpected server error                                      |
+| 500    | INTERNAL                 | Unexpected server error (always returned in JSON for consistency                                      |
 ---
 
 ## API Reference
@@ -168,7 +168,7 @@ All logs are structured JSON. Example:
   "action": "UPLOAD",
   "key": "media/2025/08/file.jpg",
   "status": "success",
-  "etag": ""9c46..."",
+  "etag": "9c46...",
   "time": "2025-08-22T10:20:00Z"
 }
 ```
@@ -179,6 +179,8 @@ All logs are structured JSON. Example:
 - IAM policy limited to `s3:PutObject`, `s3:GetObject`, `s3:DeleteObject`, `s3:ListBucket`
 - Bucket name + region in `.env`
 - Presigned URLs limited to 15 minutes by default
+- Each URL is signed specifically for the *PUT* method only — it cannot be reused for GET, DELETE, or other operations  
+- This ensures uploads are time-bound and restricted to the intended action
 
 ---
 
@@ -223,7 +225,7 @@ With more time, several improvements could be added:
 This project demonstrates how a minimal Node.js service can manage media files in AWS S3  
 without relying on frameworks like Express. It highlights low-level HTTP handling, streaming,  
 validation, error handling, and presigned URLs for large uploads.  
-
+The repo includes step-by-step cURL testing with screenshots to validate every feature.
 The codebase is intentionally simple but extendable — making it a solid foundation for a real production system.
 
 ---
