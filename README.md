@@ -116,15 +116,14 @@ MAX_UPLOAD_BYTES=52428800
 ---
 
 ## Error Handling
-| Status | Code                    | Meaning                                |
-|--------|--------------------------|----------------------------------------|
-| 400    | BAD_REQUEST              | Missing fields / invalid input         |
-| 404    | NOT_FOUND                | File not found in S3                   |
-| 405    | METHOD_NOT_ALLOWED       | Invalid HTTP method for route          |
-| 413    | PAYLOAD_TOO_LARGE        | File exceeds `MAX_UPLOAD_BYTES`        |
-| 415    | UNSUPPORTED_MEDIA_TYPE   | File type not in allowlist             |
-| 500    | INTERNAL                 | Unexpected server error                |
-
+| Status | Code                    | Meaning                                                      |
+|--------|--------------------------|--------------------------------------------------------------|
+| 400    | BAD_REQUEST              | Missing fields / invalid JSON/input                         |
+| 404    | NOT_FOUND                | File not found in S3 OR requested path does not exist        |
+| 405    | METHOD_NOT_ALLOWED       | Path exists but HTTP method is not supported for this route  |
+| 413    | PAYLOAD_TOO_LARGE        | File exceeds `MAX_UPLOAD_BYTES`                             |
+| 415    | UNSUPPORTED_MEDIA_TYPE   | File type not in allowlist / missing Content-Type header     |
+| 500    | INTERNAL                 | Unexpected server error                                      |
 ---
 
 ## API Reference
