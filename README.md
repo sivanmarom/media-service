@@ -1,4 +1,7 @@
-# NodeJS Media Service (No Express) — AWS S3
+# NodeJS Media Service — AWS S3
+![Node.js](https://img.shields.io/badge/node-%3E%3D%2018-green)
+![AWS S3](https://img.shields.io/badge/AWS-S3-orange)
+![License](https://img.shields.io/badge/license-MIT-blue)
 
 ## Overview
 A lightweight media management service built with **Node.js (no Express)** and integrated with **AWS S3**.  
