@@ -156,6 +156,7 @@ Here are some example failures and how the service responds.
 
 
 ### ❌ File Not Found
+(Requesting a file that does not exist in S3)
 ```bash
 curl -i http://localhost:3000/media/not-here.jpg
 ```
@@ -166,6 +167,7 @@ curl -i http://localhost:3000/media/not-here.jpg
 ---
 
 ### ❌ Unsupported Content-Type
+(Uploading a file with a disallowed MIME type)
 ```bash
 curl -i -X PUT   -H "Content-Type: application/zip"   --upload-file ./cat.jpg   http://localhost:3000/media/<key_from_step_2>
 ```
@@ -175,7 +177,7 @@ curl -i -X PUT   -H "Content-Type: application/zip"   --upload-file ./cat.jpg   
 ---
 
 ### ❌ Payload Too Large
-(if you have a file larger than `MAX_UPLOAD_BYTES`)
+(Trying to upload a file larger than MAX_UPLOAD_BYTES)
 ```bash
 curl -i -X PUT   -H "Content-Type: image/jpeg"   --upload-file ./huge_file.jpg   http://localhost:3000/media/<key_from_step_2>
 ```
@@ -186,6 +188,8 @@ curl -i -X PUT   -H "Content-Type: image/jpeg"   --upload-file ./huge_file.jpg  
 ---
 
 ### ❌ Invalid JSON for Presign
+(Sending malformed JSON in the presign request)
+
 ```bash
 curl -i -X POST http://localhost:3000/media/presign   -H "Content-Type: application/json"   -d '{"filename": "bad.json", "contentType": }'
 ```
@@ -196,7 +200,7 @@ curl -i -X POST http://localhost:3000/media/presign   -H "Content-Type: applicat
 ---
 
 ### ❌ Expired Presigned URL
-(wait 15 minutes, then try:)
+(Trying to upload after the 15-minute expiration window)
 ```bash
 curl -i -X PUT   -H "Content-Type: image/jpeg"   --upload-file ./cat.jpg   "<expired_url>"
 ```
@@ -206,7 +210,7 @@ curl -i -X PUT   -H "Content-Type: image/jpeg"   --upload-file ./cat.jpg   "<exp
 ---
 
 ### ❌ Missing Content-Type
-(Trying to upload without Content-Type)
+(Trying to upload without Content-Type header)
 ```bash
 curl -i -X PUT \
   --upload-file ./cat.jpg \
@@ -236,6 +240,7 @@ curl -i -X PATCH http://localhost:3000/media/<key_from_step_2>
 ```bash
 curl -i http://localhost:3000/does-not-exist
 ```
+![rtnotfound](https://github.com/user-attachments/assets/72e76377-aba1-45a4-87dc-b852fe2997d9)
 
 ![routnotexist](https://github.com/user-attachments/assets/0e4d9d61-7cc4-4c46-a737-7a81290a9888)
 
