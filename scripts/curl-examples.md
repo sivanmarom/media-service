@@ -151,6 +151,9 @@ curl -i -X DELETE http://localhost:3000/media/<key_from_step_2>
 ---
 
 ## 10. Error Cases
+Here are some example failures and how the service responds.
+📌 Each error is also logged in the server logs in structured JSON (with action, key, status, reason, timestamp).
+
 
 ### ❌ File Not Found
 ```bash
@@ -199,3 +202,13 @@ curl -i -X PUT   -H "Content-Type: image/jpeg"   --upload-file ./cat.jpg   "<exp
 ```
 
 ![expired](https://github.com/user-attachments/assets/bb18b4ae-48ad-408a-92c7-e33461be9d91)
+
+---
+
+### ❌ Missing Content-Type
+(Trying to upload without Content-Type)
+```bash
+curl -i -X PUT \
+  --upload-file ./cat.jpg \
+  http://localhost:3000/media/<key_from_step_2>
+```
