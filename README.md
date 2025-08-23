@@ -63,10 +63,6 @@ Server will run on `http://localhost:3000`.
     media.controller.js  # Business logic (CRUD for media)
   /services
     s3.service.js        # AWS S3 integration
-  /utils
-    logger.js            # Logging helper
-    responses.js         # Unified response formatter
-    parse-body.js        # Helper to parse request body
 .env                     # Example environment variables
 .gitignore               # Ignore local/env files
 README.md                # This file
