@@ -157,10 +157,15 @@ curl -i -X DELETE http://localhost:3000/media/<key_from_step_2>
 curl -i http://localhost:3000/media/not-here.jpg
 ```
 
+![notfound](https://github.com/user-attachments/assets/abd30395-ba8a-4d31-a435-947d271e48e1)
+![notfound2](https://github.com/user-attachments/assets/b859cf24-be87-45b6-ab96-23dae46b4be7)
+
 ### ❌ Unsupported Content-Type
 ```bash
 curl -i -X PUT   -H "Content-Type: application/zip"   --upload-file ./cat.jpg   http://localhost:3000/media/<key_from_step_2>
 ```
+
+![unsupported](https://github.com/user-attachments/assets/76c0aa00-ce10-4c7a-bdc4-1534e67f437b)
 
 ### ❌ Payload Too Large
 (if you have a file larger than `MAX_UPLOAD_BYTES`)
@@ -168,13 +173,21 @@ curl -i -X PUT   -H "Content-Type: application/zip"   --upload-file ./cat.jpg   
 curl -i -X PUT   -H "Content-Type: image/jpeg"   --upload-file ./huge_file.jpg   http://localhost:3000/media/<key_from_step_2>
 ```
 
+![toobig](https://github.com/user-attachments/assets/e3674801-b7e7-486b-9aee-58ed2357906a)
+![toobig2](https://github.com/user-attachments/assets/a2224d49-0971-4523-9ef1-226a510533ea)
+
 ### ❌ Invalid JSON for Presign
 ```bash
 curl -i -X POST http://localhost:3000/media/presign   -H "Content-Type: application/json"   -d '{"filename": "bad.json", "contentType": }'
 ```
+
+![invalid_json](https://github.com/user-attachments/assets/e6d93f91-7210-4caf-b967-3f85e3ee01d7)
+![invalidjson2](https://github.com/user-attachments/assets/d6ce723b-1237-438d-88d0-97ebce5271ef)
 
 ### ❌ Expired Presigned URL
 (wait 15 minutes, then try:)
 ```bash
 curl -i -X PUT   -H "Content-Type: image/jpeg"   --upload-file ./cat.jpg   "<expired_url>"
 ```
+
+![expired](https://github.com/user-attachments/assets/bb18b4ae-48ad-408a-92c7-e33461be9d91)
