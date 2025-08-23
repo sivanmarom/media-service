@@ -106,6 +106,7 @@ curl -s -X POST http://localhost:3000/media/presign \
       "source": "update",
       "owner": "sivan"
       }
+  }'
 ```
 
 ![update_via_presigned](https://github.com/user-attachments/assets/04534e4d-571d-49f7-b29c-4252d63b0e46)
@@ -152,7 +153,7 @@ curl -i -X DELETE http://localhost:3000/media/<key_from_step_2>
 
 ## 10. Error Cases
 Here are some example failures and how the service responds.
-📌 Each error is also logged in the server logs in structured JSON (with action, key, status, reason, timestamp).
+📌 Each error is also logged in the server logs in structured JSON (with action, key, status, reason, timestamp) for easier debugging.
 
 
 ### ❌ File Not Found
