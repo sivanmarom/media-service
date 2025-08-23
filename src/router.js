@@ -4,10 +4,10 @@ import {
 } from './controllers/media.controller.js';
 
 export default async function router(req, res) {
-  // Turn the request URL into an object
+  // Turn raw url into a URL object (need base so we use Host)
   const url = new URL(req.url, `http://${req.headers.host}`);
 
-  // log every incoming request
+  // Log every request
   console.log(JSON.stringify({
     action: 'REQUEST',
     method: req.method,
@@ -16,58 +16,95 @@ export default async function router(req, res) {
     time: new Date().toISOString()
   }));
 
-  // Health check
-  if (req.method === 'GET' && url.pathname === '/health') {
-    return health(req, res);
+  // NEW: flags to detect if path exists and if method is allowed
+  let matchedPath = false;
+  let methodAllowed = false;
+
+  // /health
+  if (url.pathname === '/health') {
+    matchedPath = true;
+    if (req.method === 'GET') {
+      methodAllowed = true;
+      return health(req, res);
+    }
   }
 
-  // List files in S3
-  if (req.method === 'GET' && url.pathname === '/media') {
-    return listMedia(req, res, url);
+  // /media (list)
+  if (url.pathname === '/media') {
+    matchedPath = true;
+    if (req.method === 'GET') {
+      methodAllowed = true;
+      return listMedia(req, res, url);
+    }
   }
 
-  // ask server for a presign URL (used to upload/update directly to S3)
-  if (req.method === 'POST' && url.pathname === '/media/presign') {
-    return createPresigned(req, res);
+  // /media/presign (create/update via presigned)
+  if (url.pathname === '/media/presign') {
+    matchedPath = true;
+    if (req.method === 'POST') {
+      methodAllowed = true;
+      return createPresigned(req, res);
+    }
   }
 
-  // get only metadata of a file
-  if (req.method === 'GET' && url.pathname.startsWith('/media/head/')) {
-    const key = decodeURIComponent(url.pathname.replace('/media/head/', ''));
-    return headMedia(req, res, url, key);
+  // /media/head/:key (metadata only)
+  if (url.pathname.startsWith('/media/head/')) {
+    matchedPath = true;
+    if (req.method === 'GET') {
+      methodAllowed = true;
+      const key = decodeURIComponent(url.pathname.replace('/media/head/', ''));
+      return headMedia(req, res, url, key);
+    }
   }
 
-  // download a file 
-  if (req.method === 'GET' && url.pathname.startsWith('/media/')) {
+  // /media/:key (download / delete / put)
+  if (url.pathname.startsWith('/media/')) {
+    matchedPath = true;
     const key = decodeURIComponent(url.pathname.replace('/media/', ''));
-    return getMedia(req, res, url, key);
+
+    if (req.method === 'GET') {
+      methodAllowed = true;
+      return getMedia(req, res, url, key);
+    }
+    if (req.method === 'DELETE') {
+      methodAllowed = true;
+      return deleteMedia(req, res, url, key);
+    }
+    if (req.method === 'PUT') {
+      methodAllowed = true;
+      return putMedia(req, res, url, key);
+    }
   }
 
-  // delete a file
-  if (req.method === 'DELETE' && url.pathname.startsWith('/media/')) {
-    const key = decodeURIComponent(url.pathname.replace('/media/', ''));
-    return deleteMedia(req, res, url, key);
+  // NEW: If path exists but method not supported → 405
+  if (matchedPath && !methodAllowed) {
+    console.warn(JSON.stringify({
+      action: 'ROUTER',
+      method: req.method,
+      path: url.pathname,
+      status: 'method_not_allowed',
+      time: new Date().toISOString()
+    }));
+    res.statusCode = 405;
+    res.setHeader('Content-Type', 'application/json');
+    return res.end(JSON.stringify({
+      ok: false,
+      error: { code: 'METHOD_NOT_ALLOWED', message: 'Method not allowed' }
+    }));
   }
 
-  // update (direct PUT via server for small files )
-  if (req.method === 'PUT' && url.pathname.startsWith('/media/')) {
-    const key = decodeURIComponent(url.pathname.replace('/media/', ''));
-    return putMedia(req, res, url, key);
-  }
-
-  //  method/path not supported
+  // NEW: Path not found → 404
   console.warn(JSON.stringify({
     action: 'ROUTER',
     method: req.method,
     path: url.pathname,
-    status: 'method_not_allowed',
+    status: 'not_found',
     time: new Date().toISOString()
   }));
-
-  res.statusCode = 405;
+  res.statusCode = 404;
   res.setHeader('Content-Type', 'application/json');
-  res.end(JSON.stringify({
+  return res.end(JSON.stringify({
     ok: false,
-    error: { code: 'METHOD_NOT_ALLOWED', message: 'Method not allowed' }
+    error: { code: 'NOT_FOUND', message: 'Route not found' }
   }));
 }
