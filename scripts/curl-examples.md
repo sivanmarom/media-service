@@ -92,11 +92,19 @@ curl -i "http://localhost:3000/media?prefix=media/2025/08"
 ---
 
 ## 7. Update via Presigned URL
-Update (replace) a file with a new one using the same `key`.
+Update (replace) a file with a new one using the same key.
+You can also attach new metadata (optional) that will overwrite the old metadata stored in S3.
+1.	Request presigned URL for the existing key (with optional metadata):
 
-1. Request presigned URL for the existing key:
 ```bash
-curl -s -X POST http://localhost:3000/media/presign   -H "Content-Type: application/json"   -d '{"key":"<key_from_step_2>","contentType":"image/jpeg"}'
+curl -s -X POST http://localhost:3000/media/presign \
+  -H "Content-Type: application/json" \
+  -d '{
+    "key": "<key_from_step_2>",
+    "contentType": "image/jpeg",
+    "metadata": {
+      "source": "update",
+      "owner": "sivan"
 ```
 
 ![update_via_presigned](https://github.com/user-attachments/assets/04534e4d-571d-49f7-b29c-4252d63b0e46)
