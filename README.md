@@ -74,7 +74,7 @@ README.md                # This file
 ```ini
 AWS_ACCESS_KEY_ID=your_key
 AWS_SECRET_ACCESS_KEY=your_secret
-AWS_REGION=us-east-1
+AWS_REGION=your-region
 S3_BUCKET=your-bucket
 PORT=3000
 
