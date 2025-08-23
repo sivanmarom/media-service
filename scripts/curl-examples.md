@@ -212,9 +212,9 @@ curl -i -X PUT \
   --upload-file ./cat.jpg \
   http://localhost:3000/media/<key_from_step_2>
 ```
-📌 Response:
-	•	415 UNSUPPORTED_MEDIA_TYPE – service rejects upload without a Content-Type.
-	•	Logged with reason: "missing content-type".
+
+![missing_content_type](https://github.com/user-attachments/assets/76e91d29-f2b1-46ac-888e-6ff799a62bb9)
+![missing_ct](https://github.com/user-attachments/assets/13924938-6280-4a77-9e5e-feb2745681ab)
 
 ---
 
@@ -224,9 +224,10 @@ curl -i -X PUT \
 curl -i -X PATCH http://localhost:3000/media/<key_from_step_2>
 ```
 
-📌 Response:
-	•	405 METHOD_NOT_ALLOWED – this route does not support PATCH.
-	•	Router logs status: method_not_allowed.
+![methosnotallowd](https://github.com/user-attachments/assets/0c3e6731-94d7-4d67-afb6-940d01c5d6a8)
+
+![mtdnotallowd](https://github.com/user-attachments/assets/bb75a9cd-c658-48a9-a1b3-0ed91a71a519)
+
 
 ---
 
@@ -235,7 +236,7 @@ curl -i -X PATCH http://localhost:3000/media/<key_from_step_2>
 ```bash
 curl -i http://localhost:3000/does-not-exist
 ```
+![route_not_exist](https://github.com/user-attachments/assets/adf1ce79-f2ee-4274-8353-9de74c5fcb46)
+![routnotexist](https://github.com/user-attachments/assets/0e4d9d61-7cc4-4c46-a737-7a81290a9888)
 
-📌 Response:
-	•	405 METHOD_NOT_ALLOWED – because path didn’t match any supported handler.
-	•	Router logs it as unsupported route.
+
