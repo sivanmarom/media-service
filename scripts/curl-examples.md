@@ -122,9 +122,15 @@ curl -i -X PUT   -H "Content-Type: image/jpeg"   --upload-file ./mice.jpg   "<ur
 
 ## 8. Update via Server (Direct PUT)
 For small files, upload directly through the server without presign.
+You can also attach metadata by sending custom headers prefixed with x-meta-.
 
 ```bash
-curl -i -X PUT   -H "Content-Type: image/jpeg"   --upload-file ./dog.jpg   http://localhost:3000/media/<key_from_step_2>
+curl -i -X PUT \
+  -H "Content-Type: image/jpeg" \
+  -H "x-meta-source: direct-put" \
+  -H "x-meta-owner: sivan" \
+  --upload-file ./dog.jpg \
+  http://localhost:3000/media/<key_from_step_2>
 ```
 
 ![update_via_server](https://github.com/user-attachments/assets/2f5859de-b172-4967-bfde-269c814b9978)
