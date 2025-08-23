@@ -106,6 +106,9 @@ MAX_UPLOAD_BYTES=52428800
 - JSON structured logs for each action (upload, delete, list, error)
 - Includes key, size, status, error, and timestamp
 
+### Error Handling
+- mapped errors to clear HTTP status codes (400/404/405/413/415/500) to make debugging predictable and API contracts explicit.
+
 ### Large Files
 - Files over `MAX_UPLOAD_BYTES` → require **presigned URL upload** (client streams directly to S3)  
 - Small files → direct upload handled by server
