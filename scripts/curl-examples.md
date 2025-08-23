@@ -105,6 +105,7 @@ curl -s -X POST http://localhost:3000/media/presign \
     "metadata": {
       "source": "update",
       "owner": "sivan"
+      }
 ```
 
 ![update_via_presigned](https://github.com/user-attachments/assets/04534e4d-571d-49f7-b29c-4252d63b0e46)
