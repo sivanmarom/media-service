@@ -15,13 +15,25 @@ curl -i http://localhost:3000/health
 ---
 
 ## 2. Create – Get a Presigned URL
-Request a presigned URL for uploading a new file.  
-This returns a JSON with `"url"` (for uploading) and `"key"` (for referencing later).
+Request a presigned URL for uploading a new file.
+This returns a JSON with "url" (for uploading) and "key" (for referencing later).
+You can also pass optional "metadata" that will be stored in S3 along with the object.
 
 ```bash
-curl -s -X POST http://localhost:3000/media/presign   -H "Content-Type: application/json"   -d '{"filename":"cat.jpg","contentType":"image/jpeg"}'
+curl -s -X POST http://localhost:3000/media/presign \
+  -H "Content-Type: application/json" \
+  -d '{
+    "filename": "cat.jpg",
+    "contentType": "image/jpeg",
+    "metadata": {
+      "source": "cli",
+      "owner": "sivan"
+    }
+  }'
 ```
-
+📌 Response includes:
+	•	key → The generated S3 key for the file
+	•	url → The presigned PUT URL…
 ---
 
 ## 3. Upload via Presigned URL
