@@ -8,6 +8,7 @@
 This project is a **custom Node.js media management service** built without Express.  
 It provides a minimal HTTP server that integrates directly with **AWS S3** (via the official **AWS SDK v3**) to handle file uploads, downloads, metadata (HEAD), updates, and deletions.  
 The service supports **Presigned URLs** for large file uploads, includes **validation, logging, and error handling**, and is designed to showcase low-level Node.js skills (streams, routing, HTTP methods).
+
 ---
 
 ## Requirements
