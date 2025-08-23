@@ -12,6 +12,8 @@ Verify that the server is up and running.
 curl -i http://localhost:3000/health
 ```
 
+![health_check](https://github.com/user-attachments/assets/f3e1781d-9049-4161-8763-4de1b020652d)
+
 ---
 
 ## 2. Create – Get a Presigned URL
