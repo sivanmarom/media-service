@@ -47,7 +47,7 @@ curl -s -X POST http://localhost:3000/media/presign \
 Upload the file directly to S3 using the `url` returned in step 2.
 
 ```bash
-curl -i -X PUT   -H "Content-Type: image/jpeg"   --upload-file ./cat.jpg   "<url_from_step_2>"
+curl -i -X PUT   -H "Content-Type: image/jpeg"   --upload-file ./cat.jfif   "<url_from_step_2>"
 ```
 
 ![upload_via_presigned](https://github.com/user-attachments/assets/d3f8b24d-7c69-4141-ac1c-eae1b8656abc)
