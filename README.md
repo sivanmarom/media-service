@@ -1,7 +1,8 @@
 # NodeJS Media Service — AWS S3
-![Node.js](https://img.shields.io/badge/node-%3E%3D%2018-green)
-![AWS S3](https://img.shields.io/badge/AWS-S3-orange)
-![License](https://img.shields.io/badge/license-MIT-blue)
+![Node.js](https://img.shields.io/badge/node-%3E=18-green) 
+![AWS S3](https://img.shields.io/badge/AWS-S3-blue?logo=amazon-aws) 
+![AWS SDK v3](https://img.shields.io/badge/AWS%20SDK-v3-orange?logo=amazon-aws) 
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 ## Overview
 
@@ -17,15 +18,35 @@ The service supports **Presigned URLs** for large file uploads, includes **valid
 - AWS Account with IAM user/role (least privilege)
 - S3 Bucket created
 - Git
+- AWS SDK v3
 
 ---
 
 ## Setup
+
 ```bash
 git clone <your-repo-url>
 cd media-service
 npm install
-cp .env.example .env   # Fill in your AWS credentials + config
+
+# Copy env example and fill in your AWS credentials + config
+cp .env .env
+```
+Now edit .env and set values like:
+
+```bash
+AWS_ACCESS_KEY_ID=your_key
+AWS_SECRET_ACCESS_KEY=your_secret
+AWS_REGION=us-east-1
+S3_BUCKET=your-bucket-name
+PORT=3000
+ALLOWED_CONTENT_TYPES=image/jpeg,image/png,application/pdf
+MAX_UPLOAD_BYTES=52428800
+```
+
+Then start the server
+
+```bash
 node src/server.js
 ```
 
@@ -46,7 +67,7 @@ Server will run on `http://localhost:3000`.
     logger.js            # Logging helper
     responses.js         # Unified response formatter
     parse-body.js        # Helper to parse request body
-.env.example             # Example environment variables
+.env                     # Example environment variables
 .gitignore               # Ignore local/env files
 README.md                # This file
 ```
