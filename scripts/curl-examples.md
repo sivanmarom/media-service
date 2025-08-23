@@ -35,9 +35,9 @@ curl -s -X POST http://localhost:3000/media/presign \
 ```
 
 📌 Response includes:
-	•	key → The generated S3 key for the file
-	•	url → The presigned PUT URL to upload your file
-	•	expiresIn → Expiration time (seconds)
+-	key → The generated S3 key for the file
+-	url → The presigned PUT URL to upload your file
+-	expiresIn → Expiration time (seconds)
 
 
 ---
