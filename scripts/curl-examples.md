@@ -217,6 +217,7 @@ curl -i -X PUT \
 	•	Logged with reason: "missing content-type".
  
 ![missing_content_type](https://github.com/user-attachments/assets/04451b00-2ace-48b8-ba6d-4976d8be5203)
+![missing_ct](https://github.com/user-attachments/assets/91c31295-1a9b-46da-a8f9-d39eae57bfec)
 
 ---
 
@@ -229,6 +230,8 @@ curl -i -X PATCH http://localhost:3000/media/<key_from_step_2>
 📌 Response:
 	•	405 METHOD_NOT_ALLOWED – this route does not support PATCH.
 	•	Router logs status: method_not_allowed.
+![mtdnotallowd](https://github.com/user-attachments/assets/f2be34b5-96f1-4c0b-b81a-35001fb82e25)
+![methosnotallowd](https://github.com/user-attachments/assets/70fb8782-d3be-4cec-a87a-3574077dd8a8)
 
 ---
 
@@ -241,3 +244,5 @@ curl -i http://localhost:3000/does-not-exist
 📌 Response:
 	•	405 METHOD_NOT_ALLOWED – because path didn’t match any supported handler.
 	•	Router logs it as unsupported route.
+![route_not_exist](https://github.com/user-attachments/assets/cd2f5c47-c9b8-4dfb-9e4a-dfa7012a5ad2)
+![routnotexist](https://github.com/user-attachments/assets/7fe89457-6e2d-4f00-bec7-92600d166ed5)
