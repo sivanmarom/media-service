@@ -72,6 +72,8 @@ List all files under the given prefix.
 curl -i "http://localhost:3000/media?prefix=media/2025/08"
 ```
 
+![list](https://github.com/user-attachments/assets/f16a1d79-1deb-4bb9-8e2b-547c23cfd0cc)
+
 ---
 
 ## 7. Update via Presigned URL
@@ -92,8 +94,6 @@ curl -i -X PUT   -H "Content-Type: image/jpeg"   --upload-file ./mice.jpg   "<ur
 
 ![update_metadata_presign](https://github.com/user-attachments/assets/07aa4350-7d8b-4e75-9adf-1e5338341c57)
 
-![update_presign_s3](https://github.com/user-attachments/assets/7068674e-0d62-43ce-81a1-d86dc7103217)
-
 ---
 
 ## 8. Update via Server (Direct PUT)
@@ -103,6 +103,10 @@ For small files, upload directly through the server without presign.
 curl -i -X PUT   -H "Content-Type: image/jpeg"   --upload-file ./dog.jpg   http://localhost:3000/media/<key_from_step_2>
 ```
 
+![update_via_server](https://github.com/user-attachments/assets/2f5859de-b172-4967-bfde-269c814b9978)
+
+![update_server_metadata](https://github.com/user-attachments/assets/eb9f3018-8633-4496-84cb-2477d4bb02a0)
+
 ---
 
 ## 9. Delete
@@ -111,6 +115,8 @@ Remove the file from S3.
 ```bash
 curl -i -X DELETE http://localhost:3000/media/<key_from_step_2>
 ```
+
+![delete](https://github.com/user-attachments/assets/99a8ca35-62e0-4b0f-81eb-5b44457b0105)
 
 ---
 
