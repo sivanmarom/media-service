@@ -215,6 +215,8 @@ curl -i -X PUT \
 📌 Response:
 	•	415 UNSUPPORTED_MEDIA_TYPE – service rejects upload without a Content-Type.
 	•	Logged with reason: "missing content-type".
+ 
+![missing_content_type](https://github.com/user-attachments/assets/04451b00-2ace-48b8-ba6d-4976d8be5203)
 
 ---
 
