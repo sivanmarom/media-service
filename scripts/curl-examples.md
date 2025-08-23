@@ -212,3 +212,30 @@ curl -i -X PUT \
   --upload-file ./cat.jpg \
   http://localhost:3000/media/<key_from_step_2>
 ```
+📌 Response:
+	•	415 UNSUPPORTED_MEDIA_TYPE – service rejects upload without a Content-Type.
+	•	Logged with reason: "missing content-type".
+
+---
+
+### ❌  Method Not Allowed
+(Sending an unsupported HTTP method to a valid route)
+```bash
+curl -i -X PATCH http://localhost:3000/media/<key_from_step_2>
+```
+
+📌 Response:
+	•	405 METHOD_NOT_ALLOWED – this route does not support PATCH.
+	•	Router logs status: method_not_allowed.
+
+---
+
+### ❌  Route Does Not Exist
+(Requesting a non-existent endpoint)
+```bash
+curl -i http://localhost:3000/does-not-exist
+```
+
+📌 Response:
+	•	405 METHOD_NOT_ALLOWED – because path didn’t match any supported handler.
+	•	Router logs it as unsupported route.
