@@ -217,3 +217,13 @@ With more time, several improvements could be added:
   Store extended metadata (beyond S3 object metadata) in DynamoDB or PostgreSQL to enable advanced queries and searching capabilities.  
 
 ---
+
+## Closing Notes
+
+This project demonstrates how a minimal Node.js service can manage media files in AWS S3  
+without relying on frameworks like Express. It highlights low-level HTTP handling, streaming,  
+validation, error handling, and presigned URLs for large uploads.  
+
+The codebase is intentionally simple but extendable — making it a solid foundation for a real production system.
+
+---
